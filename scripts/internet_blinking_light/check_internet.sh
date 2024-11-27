@@ -57,7 +57,8 @@ if [ $? -eq 0 ]; then
 		kill $blinking_light_PWR_pid
 	fi
 	printf "" > $script_dir/blinking_light_PWR.pid
-	echo 1 > /sys/class/leds/led1/brightness
+	# echo 1 > /sys/class/leds/led1/brightness # Worked on Raspbian not on Raspberry Pi OS
+	echo 1 > /sys/class/leds/PWR/brightness
 else
 	# Internet NOT OK
 	echo "Internet NOT OK"

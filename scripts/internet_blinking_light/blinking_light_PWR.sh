@@ -17,12 +17,16 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 while : ; do
-	echo 1 > /sys/class/leds/led1/brightness
+	# echo 1 > /sys/class/leds/led1/brightness # Worked on Raspbian not on Raspberry Pi OS
+	echo 1 > /sys/class/leds/PWR/brightness
 	sleep 0.1
-	echo 0 > /sys/class/leds/led1/brightness
+	# echo 0 > /sys/class/leds/led1/brightness # Worked on Raspbian not on Raspberry Pi OS
+	echo 0 > /sys/class/leds/PWR/brightness
 	sleep 0.1
-	echo 1 > /sys/class/leds/led1/brightness
+	# echo 1 > /sys/class/leds/led1/brightness # Worked on Raspbian not on Raspberry Pi OS
+	echo 1 > /sys/class/leds/PWR/brightness
 	sleep 0.1
-	echo 0 > /sys/class/leds/led1/brightness
+	# echo 0 > /sys/class/leds/led1/brightness # Worked on Raspbian not on Raspberry Pi OS
+	echo 0 > /sys/class/leds/PWR/brightness
 	sleep 2
 done
