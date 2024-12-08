@@ -23,6 +23,10 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+# About how I selected the pin, see this:
+# https://raspberrypi.stackexchange.com/q/149521/115939
+GPIO_USED=525
+
 # Obtained from http://www.ostricher.com/2014/10/the-right-way-to-get-the-directory-of-a-bash-script/
 get_script_dir () {
 	SOURCE="${BASH_SOURCE[0]}"
@@ -38,9 +42,15 @@ get_script_dir () {
 }
 
 # Configure and turn off
-echo 17 > /sys/class/gpio/export
-echo out > /sys/class/gpio/gpio17/direction
-echo 1 > /sys/class/gpio/gpio17/value
+if test ! -d /sys/class/gpio/gpio$GPIO_USED; then
+	echo '> Exporting'
+	echo $GPIO_USED > /sys/class/gpio/export # Allow access
+	echo out > /sys/class/gpio/gpio$GPIO_USED/direction # Direction
+else
+	echo '> Already exported'
+fi
+
+echo 0 > /sys/class/gpio/gpio$GPIO_USED/value # Turn off
 
 script_dir=$(get_script_dir)
 blinking_light_PWR_pid=$(cat $script_dir/blinking_light_PWR.pid)
@@ -53,22 +63,22 @@ ping -c 1 -W 5 172.217.192.101 # Google
 
 if [ $? -eq 0 ]; then
 	# Internet OK
-	echo "Internet OK"
+	echo '> Internet OK'
 	# For 'kill -0 pid' see https://stackoverflow.com/a/3044045/1071459
 	# "-n" = not empty
 	if [ -n "$blinking_light_PWR_pid" ] && kill -0 $blinking_light_PWR_pid > /dev/null 2>&1
 	then
-		echo Killing blinking_light_PWR.sh \(PID: $blinking_light_PWR_pid\)
+		echo '>' Killing blinking_light_PWR.sh \(PID: $blinking_light_PWR_pid\)
 		kill $blinking_light_PWR_pid
 	fi
 	printf "" > $script_dir/blinking_light_PWR.pid
-	echo 1 > /sys/class/gpio/gpio17/value # Turn off
+	echo 0 > /sys/class/gpio/gpio$GPIO_USED/value # Turn off
 else
 	# Internet NOT OK
-	echo "Internet NOT OK"
+	echo '> Internet NOT OK'
 	# ""-z" empty
 	if [ -z "$blinking_light_PWR_pid" ]; then
-		echo Setting blinking_light_PWR_pid
+		echo '>' Setting blinking_light_PWR_pid
 		bash $script_dir/blinking_light_PWR.sh &
 		printf $! >> $script_dir/blinking_light_PWR.pid
 	fi
