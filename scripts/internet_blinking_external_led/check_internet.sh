@@ -3,7 +3,7 @@
 # ********************** #
 # This file checks if internet is working using ping
 # 	If it's working it turns the power (PWR) light on the Raspberry Pi.
-# 	If it's not working it fires the script called blinking_light_PWR.sh in this directory
+# 	If it's not working it fires the script called blinking_light_external_led.sh in this directory
 #
 # The light is an indicator so use it knowingly
 #	See https://www.raspberrypi.org/documentation/configuration/led_blink_warnings.md
@@ -53,7 +53,7 @@ fi
 echo 0 > /sys/class/gpio/gpio$GPIO_USED/value # Turn off
 
 script_dir=$(get_script_dir)
-blinking_light_PWR_pid=$(cat $script_dir/blinking_light_PWR.pid)
+blinking_light_external_led_pid=$(cat $script_dir/blinking_light_external_led.pid)
 
 # Check if internet is working
 #	'-c 1' = send only 1 package
@@ -66,20 +66,20 @@ if [ $? -eq 0 ]; then
 	echo '> Internet OK'
 	# For 'kill -0 pid' see https://stackoverflow.com/a/3044045/1071459
 	# "-n" = not empty
-	if [ -n "$blinking_light_PWR_pid" ] && kill -0 $blinking_light_PWR_pid > /dev/null 2>&1
+	if [ -n "$blinking_light_external_led_pid" ] && kill -0 $blinking_light_external_led_pid > /dev/null 2>&1
 	then
-		echo '>' Killing blinking_light_PWR.sh \(PID: $blinking_light_PWR_pid\)
-		kill $blinking_light_PWR_pid
+		echo '>' Killing blinking_light_external_led.sh \(PID: $blinking_light_external_led_pid\)
+		kill $blinking_light_external_led_pid
 	fi
-	printf "" > $script_dir/blinking_light_PWR.pid
+	printf "" > $script_dir/blinking_light_external_led.pid
 	echo 0 > /sys/class/gpio/gpio$GPIO_USED/value # Turn off
 else
 	# Internet NOT OK
 	echo '> Internet NOT OK'
 	# ""-z" empty
-	if [ -z "$blinking_light_PWR_pid" ]; then
-		echo '>' Setting blinking_light_PWR_pid
-		bash $script_dir/blinking_light_PWR.sh &
-		printf $! >> $script_dir/blinking_light_PWR.pid
+	if [ -z "$blinking_light_external_led_pid" ]; then
+		echo '>' Setting blinking_light_external_led_pid
+		bash $script_dir/blinking_light_external_led.sh &
+		printf $! >> $script_dir/blinking_light_external_led.pid
 	fi
 fi
